@@ -17,19 +17,10 @@ test("guides the user through the wizard flow", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByRole("heading", { name: "Choose a photo" })).toBeVisible();
+  await expect(page.getByLabel("Frame ratio")).toBeVisible();
   await expect(page.getByRole("button", { name: "Select photo" })).toBeVisible();
 
   await loadSampleImage(page);
-
-  await expect(page.getByRole("heading", { name: "Just Frames" })).not.toBeVisible();
-  await expect(page.getByRole("heading", { name: "Pick a frame ratio" })).toBeVisible();
-  await expect(page.getByRole("radio", { name: "Instagram Square (1:1)" })).toBeVisible();
-  await expect(page.getByRole("radio", { name: "Instagram Story (9:16)" })).toBeVisible();
-
-  await page.screenshot({ path: "test-results/wizard-ratio.png", fullPage: true });
-
-  await page.getByRole("radio", { name: "Instagram Square (1:1)" }).check();
-  await page.getByRole("button", { name: "Continue" }).click();
 
   await expect(page.getByRole("button", { name: "Done" })).toBeVisible();
   await expect(page.getByLabel("Border")).toBeVisible();

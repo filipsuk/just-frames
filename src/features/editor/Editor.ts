@@ -14,7 +14,7 @@ interface EditorState {
   image: HTMLImageElement | null;
   borderPercent: number;
   ratio: AspectRatioOption;
-  step: "photo" | "ratio" | "preview";
+  step: "photo" | "preview";
 }
 
 const createElement = <T extends keyof HTMLElementTagNameMap>(
@@ -66,23 +66,6 @@ const renderCanvas = (
   ctx.drawImage(image, layout.drawX, layout.drawY, image.naturalWidth, image.naturalHeight);
 };
 
-const buildRatioOptions = (current: AspectRatioOption): HTMLDivElement => {
-  const container = createElement("div", "ratio-options");
-
-  (Object.keys(ASPECT_RATIO_LABELS) as AspectRatioOption[]).forEach((option) => {
-    const label = createElement("label");
-    const input = createElement("input") as HTMLInputElement;
-    input.type = "radio";
-    input.name = "ratio";
-    input.value = option;
-    input.checked = option === current;
-    label.append(input, document.createTextNode(` ${ASPECT_RATIO_LABELS[option]}`));
-    container.append(label);
-  });
-
-  return container;
-};
-
 export const createEditor = (root: HTMLElement): void => {
   const state: EditorState = {
     image: null,
@@ -96,6 +79,21 @@ export const createEditor = (root: HTMLElement): void => {
   title.textContent = "Just Frames";
 
   const photoCard = createElement("section", "card step step-photo");
+  const ratioRow = createElement("div", "ratio-row");
+  const ratioLabel = createElement("label");
+  ratioLabel.textContent = "Frame ratio";
+  const ratioSelect = createElement("select") as HTMLSelectElement;
+  ratioSelect.id = "ratio-select";
+  ratioSelect.className = "ratio-select";
+  ratioLabel.htmlFor = ratioSelect.id;
+  (Object.keys(ASPECT_RATIO_LABELS) as AspectRatioOption[]).forEach((option) => {
+    const optionElement = createElement("option") as HTMLOptionElement;
+    optionElement.value = option;
+    optionElement.textContent = ASPECT_RATIO_LABELS[option];
+    optionElement.selected = option === state.ratio;
+    ratioSelect.append(optionElement);
+  });
+  ratioRow.append(ratioLabel, ratioSelect);
   const photoTitle = createElement("h2");
   photoTitle.textContent = "Choose a photo";
   const fileInput = createElement("input") as HTMLInputElement;
@@ -110,16 +108,7 @@ export const createEditor = (root: HTMLElement): void => {
   photoAction.append(photoButton, fileInput);
   const photoHelper = createElement("p", "helper");
   photoHelper.textContent = "Your photo stays on your device.";
-  photoCard.append(photoTitle, photoAction, photoHelper);
-
-  const ratioCard = createElement("section", "card step step-ratio is-hidden");
-  const ratioTitle = createElement("h2");
-  ratioTitle.textContent = "Pick a frame ratio";
-  const ratioOptions = buildRatioOptions(state.ratio);
-  const ratioButton = createElement("button") as HTMLButtonElement;
-  ratioButton.textContent = "Continue";
-  ratioButton.disabled = true;
-  ratioCard.append(ratioTitle, ratioOptions, ratioButton);
+  photoCard.append(ratioRow, photoTitle, photoAction, photoHelper);
 
   const previewCard = createElement("section", "preview step step-preview preview-screen is-hidden");
   const canvas = createElement("canvas") as HTMLCanvasElement;
@@ -144,13 +133,12 @@ export const createEditor = (root: HTMLElement): void => {
   overlay.append(borderLabel, borderRow, doneButton);
   previewCard.append(canvas, overlay);
 
-  wrapper.append(title, photoCard, ratioCard, previewCard);
+  wrapper.append(title, photoCard, previewCard);
   root.append(wrapper);
 
   const setStep = (step: EditorState["step"]): void => {
     state.step = step;
     photoCard.classList.toggle("is-hidden", step !== "photo");
-    ratioCard.classList.toggle("is-hidden", step !== "ratio");
     previewCard.classList.toggle("is-hidden", step !== "preview");
     wrapper.classList.toggle("is-wizard", step !== "photo");
     wrapper.classList.toggle("is-preview", step === "preview");
@@ -193,8 +181,7 @@ export const createEditor = (root: HTMLElement): void => {
     try {
       state.image = await loadImage(file);
       updatePreview();
-      ratioButton.disabled = false;
-      setStep("ratio");
+      setStep("preview");
     } catch (error) {
       console.error(error);
     }
@@ -210,21 +197,8 @@ export const createEditor = (root: HTMLElement): void => {
     schedulePreview();
   });
 
-  ratioOptions.addEventListener("change", (event) => {
-    const target = event.target as HTMLInputElement | null;
-    if (!target || target.name !== "ratio") {
-      return;
-    }
-
-    state.ratio = target.value as AspectRatioOption;
-    updatePreview();
-  });
-
-  ratioButton.addEventListener("click", () => {
-    if (!state.image) {
-      return;
-    }
-    setStep("preview");
+  ratioSelect.addEventListener("change", () => {
+    state.ratio = ratioSelect.value as AspectRatioOption;
     updatePreview();
   });
 
