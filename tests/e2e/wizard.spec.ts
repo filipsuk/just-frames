@@ -21,6 +21,7 @@ test("guides the user through the wizard flow", async ({ page }) => {
 
   await loadSampleImage(page);
 
+  await expect(page.getByRole("heading", { name: "Just Frames" })).not.toBeVisible();
   await expect(page.getByRole("heading", { name: "Pick a frame ratio" })).toBeVisible();
   await expect(page.getByRole("radio", { name: "Instagram Square (1:1)" })).toBeVisible();
   await expect(page.getByRole("radio", { name: "Instagram Story (9:16)" })).toBeVisible();
@@ -32,9 +33,15 @@ test("guides the user through the wizard flow", async ({ page }) => {
 
   await expect(page.getByRole("button", { name: "Done" })).toBeVisible();
   await expect(page.getByLabel("Border")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Just Frames" })).not.toBeVisible();
 
   await page.getByLabel("Border").fill("12");
   await expect(page.getByText("12%")).toBeVisible();
+
+  const isScrollable = await page.evaluate(
+    () => document.documentElement.scrollHeight > window.innerHeight,
+  );
+  expect(isScrollable).toBe(false);
 
   await page.screenshot({ path: "test-results/wizard-preview.png", fullPage: true });
 

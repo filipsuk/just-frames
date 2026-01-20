@@ -9,11 +9,27 @@ body {
   background: #f7f7f8;
 }
 
+body.is-wizard,
+body.is-preview {
+  height: 100vh;
+  overflow: hidden;
+}
+
 #app {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   padding: 24px 16px 48px;
+}
+
+#app.is-wizard {
+  padding: 0;
+  align-items: stretch;
+}
+
+#app.is-preview {
+  height: 100vh;
+  overflow: hidden;
 }
 
 .editor {
@@ -23,9 +39,25 @@ body {
   gap: 20px;
 }
 
+.editor.is-wizard {
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px 16px;
+}
+
+.editor.is-preview {
+  height: 100%;
+  padding: 0;
+  gap: 0;
+}
+
 .editor h1 {
   font-size: 22px;
   margin: 0;
+}
+
+.editor.is-wizard h1 {
+  display: none;
 }
 
 .editor h2 {
@@ -86,33 +118,31 @@ body {
 }
 
 .preview {
-  position: relative;
-  display: flex;
-  justify-content: center;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   align-items: center;
   background: #f0f0f0;
-  min-height: 100vh;
-  padding: 24px 16px 120px;
+  height: 100%;
+  padding: 16px;
+  gap: 16px;
 }
 
 .preview-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
+  width: 100%;
 }
 
 .preview canvas {
   max-width: 100%;
+  max-height: min(70vh, 100%);
   height: auto;
   background: #fff;
   border-radius: 0;
 }
 
 .preview-overlay {
-  position: fixed;
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
+  width: min(560px, 100%);
+  margin: 0 auto;
   display: grid;
   gap: 12px;
   background: rgba(255, 255, 255, 0.95);
