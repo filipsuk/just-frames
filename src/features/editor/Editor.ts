@@ -151,7 +151,12 @@ export const createEditor = (root: HTMLElement): void => {
     photoCard.classList.toggle("is-hidden", step !== "photo");
     ratioCard.classList.toggle("is-hidden", step !== "ratio");
     previewCard.classList.toggle("is-hidden", step !== "preview");
+    wrapper.classList.toggle("is-wizard", step !== "photo");
     wrapper.classList.toggle("is-preview", step === "preview");
+    root.classList.toggle("is-wizard", step !== "photo");
+    root.classList.toggle("is-preview", step === "preview");
+    document.body.classList.toggle("is-wizard", step !== "photo");
+    document.body.classList.toggle("is-preview", step === "preview");
   };
 
   const updatePreview = (): void => {
