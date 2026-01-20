@@ -46,7 +46,7 @@ body {
 }
 
 .is-hidden {
-  display: none;
+  display: none !important;
 }
 
 .step label {
