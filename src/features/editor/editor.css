@@ -12,6 +12,8 @@ body {
 body.is-wizard,
 body.is-preview {
   height: 100vh;
+  height: 100svh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -32,6 +34,8 @@ body.is-preview {
 
 #app.is-preview {
   height: 100vh;
+  height: 100svh;
+  height: 100dvh;
   overflow: hidden;
 }
 
