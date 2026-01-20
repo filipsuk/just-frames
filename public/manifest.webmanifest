@@ -1,0 +1,15 @@
+{
+  "name": "Just Frames",
+  "short_name": "Just Frames",
+  "start_url": "/just-frames/",
+  "display": "standalone",
+  "background_color": "#f7f7f8",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/just-frames/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
