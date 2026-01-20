@@ -97,16 +97,19 @@ export const createEditor = (root: HTMLElement): void => {
   const photoCard = createElement("section", "card step step-photo");
   const photoTitle = createElement("h2");
   photoTitle.textContent = "Choose a photo";
-  const fileLabel = createElement("label");
-  fileLabel.textContent = "Pick a photo to frame";
   const fileInput = createElement("input") as HTMLInputElement;
   fileInput.id = "photo-input";
   fileInput.type = "file";
   fileInput.accept = "image/*";
-  fileLabel.htmlFor = fileInput.id;
+  fileInput.className = "photo-input";
+  const photoAction = createElement("div", "photo-action");
+  const photoButton = createElement("button") as HTMLButtonElement;
+  photoButton.type = "button";
+  photoButton.textContent = "Select photo";
+  photoAction.append(photoButton, fileInput);
   const photoHelper = createElement("p", "helper");
   photoHelper.textContent = "Your photo stays on your device.";
-  photoCard.append(photoTitle, fileLabel, fileInput, photoHelper);
+  photoCard.append(photoTitle, photoAction, photoHelper);
 
   const ratioCard = createElement("section", "card step step-ratio is-hidden");
   const ratioTitle = createElement("h2");
@@ -117,7 +120,7 @@ export const createEditor = (root: HTMLElement): void => {
   ratioButton.disabled = true;
   ratioCard.append(ratioTitle, ratioOptions, ratioButton);
 
-  const previewCard = createElement("section", "card preview step step-preview is-hidden");
+  const previewCard = createElement("section", "preview step step-preview preview-screen is-hidden");
   const canvas = createElement("canvas") as HTMLCanvasElement;
   const overlay = createElement("div", "preview-overlay");
   const borderLabel = createElement("label");
@@ -148,6 +151,7 @@ export const createEditor = (root: HTMLElement): void => {
     photoCard.classList.toggle("is-hidden", step !== "photo");
     ratioCard.classList.toggle("is-hidden", step !== "ratio");
     previewCard.classList.toggle("is-hidden", step !== "preview");
+    wrapper.classList.toggle("is-preview", step === "preview");
   };
 
   const updatePreview = (): void => {
@@ -184,6 +188,10 @@ export const createEditor = (root: HTMLElement): void => {
     } catch (error) {
       console.error(error);
     }
+  });
+
+  photoButton.addEventListener("click", () => {
+    fileInput.click();
   });
 
   borderInput.addEventListener("input", () => {

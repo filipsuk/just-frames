@@ -1,5 +1,6 @@
 export type AspectRatioOption =
   | "story"
+  | "square"
   | "post-vertical"
   | "post-horizontal"
   | "original";
