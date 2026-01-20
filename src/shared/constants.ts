@@ -19,3 +19,4 @@ export const BORDER_PERCENT_MIN = 0;
 export const BORDER_PERCENT_MAX = 20;
 export const DEFAULT_BORDER_PERCENT = 8;
 export const DEFAULT_RATIO: AspectRatioOption = "story";
+export const MAX_CANVAS_DIMENSION = 4096;
