@@ -133,7 +133,7 @@ body.is-preview {
 }
 
 .preview canvas {
-  max-width: 100%;
+  width: 100%;
   max-height: min(70vh, 100%);
   height: auto;
   background: #fff;
@@ -141,7 +141,7 @@ body.is-preview {
 }
 
 .preview-overlay {
-  width: min(560px, 100%);
+  width: min(560px, 80%);
   margin: 0 auto;
   display: grid;
   gap: 12px;
