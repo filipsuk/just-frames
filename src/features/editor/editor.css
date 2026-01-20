@@ -141,8 +141,12 @@ body.is-preview {
 }
 
 .preview-overlay {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
   width: min(560px, 80%);
-  margin: 0 auto;
+  z-index: 5;
   display: grid;
   gap: 12px;
   background: rgba(255, 255, 255, 0.95);
