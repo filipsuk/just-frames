@@ -121,7 +121,6 @@ body.is-preview {
   box-sizing: border-box;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  align-items: center;
   background: #f0f0f0;
   height: 100%;
   padding: 16px;
