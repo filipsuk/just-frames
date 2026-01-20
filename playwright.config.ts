@@ -6,6 +6,7 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:4173",
     screenshot: "only-on-failure",
+    viewport: { width: 430, height: 932 },
   },
   webServer: {
     command: "npm run dev -- --host 0.0.0.0 --port 4173",
