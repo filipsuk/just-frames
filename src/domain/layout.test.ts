@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateLayout } from "./layout";
+import { calculateCanvasScale, calculateLayout } from "./layout";
 import { resolveAspectRatio } from "./aspectRatio";
 import type { AspectRatioOption } from "../shared/types";
 
@@ -59,6 +59,28 @@ describe("calculateLayout", () => {
     const ratio = layout.canvasWidth / layout.canvasHeight;
     expect(ratio).toBeCloseTo(1.91, 2);
     expect(layout.canvasWidth).toBeGreaterThan(source.width + 16);
+  });
+});
+
+describe("calculateCanvasScale", () => {
+  it("returns 1 when layout fits within max dimension", () => {
+    const layout = calculateLayout({
+      source,
+      borderPercent: 10,
+      ratio: "original",
+    });
+
+    expect(calculateCanvasScale(layout, 2000)).toBe(1);
+  });
+
+  it("scales down when layout exceeds max dimension", () => {
+    const layout = calculateLayout({
+      source: { width: 5000, height: 3000 },
+      borderPercent: 0,
+      ratio: "original",
+    });
+
+    expect(calculateCanvasScale(layout, 2500)).toBeCloseTo(0.5, 3);
   });
 });
 

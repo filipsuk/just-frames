@@ -45,3 +45,19 @@ export const calculateLayout = ({
     drawY,
   };
 };
+
+export const calculateCanvasScale = (
+  layout: LayoutResult,
+  maxDimension: number,
+): number => {
+  if (maxDimension <= 0) {
+    return 1;
+  }
+
+  const maxLayoutDimension = Math.max(layout.canvasWidth, layout.canvasHeight);
+  if (maxLayoutDimension <= maxDimension) {
+    return 1;
+  }
+
+  return maxDimension / maxLayoutDimension;
+};

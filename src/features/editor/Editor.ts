@@ -1,11 +1,12 @@
 import "./editor.css";
-import { calculateLayout } from "../../domain/layout";
+import { calculateCanvasScale, calculateLayout } from "../../domain/layout";
 import {
   ASPECT_RATIO_LABELS,
   BORDER_PERCENT_MAX,
   BORDER_PERCENT_MIN,
   DEFAULT_BORDER_PERCENT,
   DEFAULT_RATIO,
+  MAX_CANVAS_DIMENSION,
 } from "../../shared/constants";
 import { createRafThrottled } from "../../shared/rafThrottle";
 import type { AspectRatioOption } from "../../shared/types";
@@ -75,9 +76,12 @@ const renderCanvas = (
     borderPercent,
     ratio,
   });
+  const scale = calculateCanvasScale(layout, MAX_CANVAS_DIMENSION);
+  const canvasWidth = Math.max(1, Math.round(layout.canvasWidth * scale));
+  const canvasHeight = Math.max(1, Math.round(layout.canvasHeight * scale));
 
-  canvas.width = layout.canvasWidth;
-  canvas.height = layout.canvasHeight;
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
 
   const ctx = canvas.getContext("2d");
   if (!ctx) {
@@ -86,7 +90,13 @@ const renderCanvas = (
 
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(image, layout.drawX, layout.drawY, image.naturalWidth, image.naturalHeight);
+  ctx.drawImage(
+    image,
+    layout.drawX * scale,
+    layout.drawY * scale,
+    image.naturalWidth * scale,
+    image.naturalHeight * scale,
+  );
 };
 
 export const createEditor = (root: HTMLElement): void => {
