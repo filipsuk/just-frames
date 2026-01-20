@@ -28,6 +28,29 @@ const createElement = <T extends keyof HTMLElementTagNameMap>(
   return element;
 };
 
+const createCloseButton = (): HTMLButtonElement => {
+  const button = createElement("button", "preview-close") as HTMLButtonElement;
+  button.type = "button";
+  button.setAttribute("aria-label", "Close preview");
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("width", "16");
+  svg.setAttribute("height", "16");
+  svg.setAttribute("aria-hidden", "true");
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "M6 6l12 12M18 6l-12 12");
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", "currentColor");
+  path.setAttribute("stroke-width", "2");
+  path.setAttribute("stroke-linecap", "round");
+
+  svg.append(path);
+  button.append(svg);
+  return button;
+};
+
 const loadImage = (file: File): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -111,6 +134,7 @@ export const createEditor = (root: HTMLElement): void => {
   photoCard.append(ratioRow, photoTitle, photoAction, photoHelper);
 
   const previewCard = createElement("section", "preview step step-preview preview-screen is-hidden");
+  const closeButton = createCloseButton();
   const canvas = createElement("canvas") as HTMLCanvasElement;
   const overlay = createElement("div", "preview-overlay");
   const borderLabel = createElement("label");
@@ -131,7 +155,7 @@ export const createEditor = (root: HTMLElement): void => {
   doneButton.textContent = "Done";
   doneButton.disabled = true;
   overlay.append(borderLabel, borderRow, doneButton);
-  previewCard.append(canvas, overlay);
+  previewCard.append(closeButton, canvas, overlay);
 
   wrapper.append(title, photoCard, previewCard);
   root.append(wrapper);
@@ -234,6 +258,10 @@ export const createEditor = (root: HTMLElement): void => {
     link.download = "just-frame.jpg";
     link.click();
     URL.revokeObjectURL(url);
+  });
+
+  closeButton.addEventListener("click", () => {
+    setStep("photo");
   });
 
   updatePreview();

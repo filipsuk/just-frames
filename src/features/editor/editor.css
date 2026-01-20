@@ -128,10 +128,11 @@ body.is-preview {
   box-sizing: border-box;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  background: #f0f0f0;
+  background: #4c4c4c;
   height: 100%;
   padding: 16px;
   gap: 16px;
+  position: relative;
 }
 
 .preview-screen {
@@ -172,6 +173,26 @@ button {
 
 button:disabled {
   background: #9ca3af;
+}
+
+.preview-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.preview-close svg {
+  display: block;
 }
 
 .helper {
