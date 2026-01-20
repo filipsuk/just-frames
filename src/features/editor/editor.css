@@ -143,9 +143,13 @@ body.is-preview {
 }
 
 .preview canvas {
-  width: 100%;
-  max-height: min(70vh, 100%);
+  display: block;
+  width: auto;
   height: auto;
+  max-width: 100%;
+  max-height: min(70vh, 100%);
+  margin: 0 auto;
+  object-fit: contain;
   background: #fff;
   border-radius: 0;
 }
