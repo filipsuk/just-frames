@@ -7,6 +7,7 @@ import {
   DEFAULT_BORDER_PERCENT,
   DEFAULT_RATIO,
 } from "../../shared/constants";
+import { createRafThrottled } from "../../shared/rafThrottle";
 import type { AspectRatioOption } from "../../shared/types";
 
 interface EditorState {
@@ -179,6 +180,10 @@ export const createEditor = (root: HTMLElement): void => {
     doneButton.disabled = false;
   };
 
+  const schedulePreview = createRafThrottled(() => {
+    updatePreview();
+  });
+
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files?.[0];
     if (!file) {
@@ -202,7 +207,7 @@ export const createEditor = (root: HTMLElement): void => {
   borderInput.addEventListener("input", () => {
     state.borderPercent = Number(borderInput.value);
     borderValue.textContent = `${state.borderPercent}%`;
-    updatePreview();
+    schedulePreview();
   });
 
   ratioOptions.addEventListener("change", (event) => {
