@@ -13,7 +13,7 @@ export const ASPECT_RATIOS: Record<Exclude<AspectRatioOption, "original">, numbe
   "post-horizontal": 1.91 / 1,
 };
 
-export const BORDER_WIDTH_MIN = 0;
-export const BORDER_WIDTH_MAX = 50;
-export const DEFAULT_BORDER_WIDTH = 12;
+export const BORDER_PERCENT_MIN = 0;
+export const BORDER_PERCENT_MAX = 20;
+export const DEFAULT_BORDER_PERCENT = 8;
 export const DEFAULT_RATIO: AspectRatioOption = "story";

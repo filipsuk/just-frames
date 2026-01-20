@@ -3,16 +3,20 @@ import { resolveAspectRatio } from "./aspectRatio";
 
 export interface LayoutInput {
   source: ImageSize;
-  borderWidth: number;
+  borderPercent: number;
   ratio: AspectRatioOption;
 }
 
 export const calculateLayout = ({
   source,
-  borderWidth,
+  borderPercent,
   ratio,
 }: LayoutInput): LayoutResult => {
-  const safeBorder = Math.max(0, Math.floor(borderWidth));
+  const minDimension = Math.min(source.width, source.height);
+  const safeBorder = Math.max(
+    0,
+    Math.round(minDimension * (borderPercent / 100)),
+  );
   const baseWidth = source.width + safeBorder * 2;
   const baseHeight = source.height + safeBorder * 2;
   const targetRatio = resolveAspectRatio(ratio, source.width, source.height);

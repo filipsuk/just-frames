@@ -27,20 +27,20 @@ describe("calculateLayout", () => {
   it("expands the canvas with the requested border", () => {
     const layout = calculateLayout({
       source,
-      borderWidth: 10,
+      borderPercent: 10,
       ratio: "original",
     });
 
-    expect(layout.canvasWidth).toBe(1220);
-    expect(layout.canvasHeight).toBe(920);
-    expect(layout.drawX).toBe(10);
-    expect(layout.drawY).toBe(10);
+    expect(layout.canvasWidth).toBe(1380);
+    expect(layout.canvasHeight).toBe(1080);
+    expect(layout.drawX).toBe(90);
+    expect(layout.drawY).toBe(90);
   });
 
   it("pads vertically for story ratio", () => {
     const layout = calculateLayout({
       source,
-      borderWidth: 20,
+      borderPercent: 12,
       ratio: "story",
     });
 
@@ -52,7 +52,7 @@ describe("calculateLayout", () => {
   it("pads horizontally for wide ratios", () => {
     const layout = calculateLayout({
       source,
-      borderWidth: 8,
+      borderPercent: 6,
       ratio: "post-horizontal",
     });
 
@@ -74,7 +74,7 @@ describe("layout placements", () => {
     for (const ratio of ratioOptions) {
       const layout = calculateLayout({
         source,
-        borderWidth: 12,
+        borderPercent: 8,
         ratio,
       });
 
