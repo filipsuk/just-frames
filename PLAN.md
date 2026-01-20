@@ -77,6 +77,7 @@ src/
 
 6. **GitHub Pages deployment**
    - GitHub Actions workflow: build on merge to `main` and deploy `dist/` to GitHub Pages.
+   - Require tests to pass in CI before merge.
 
 ## Local Development
 - `npm install`
