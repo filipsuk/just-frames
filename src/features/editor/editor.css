@@ -112,9 +112,16 @@ body.is-preview {
   flex: 1;
 }
 
-.ratio-options {
+.ratio-row {
   display: grid;
-  gap: 8px;
+  gap: 6px;
+}
+
+.ratio-select {
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  padding: 10px 12px;
+  font-size: 14px;
 }
 
 .preview {
