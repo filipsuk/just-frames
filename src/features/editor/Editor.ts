@@ -1,12 +1,19 @@
 import "./editor.css";
 import { calculateLayout } from "../../domain/layout";
-import { ASPECT_RATIO_LABELS, BORDER_WIDTH_MAX, BORDER_WIDTH_MIN, DEFAULT_BORDER_WIDTH, DEFAULT_RATIO } from "../../shared/constants";
+import {
+  ASPECT_RATIO_LABELS,
+  BORDER_PERCENT_MAX,
+  BORDER_PERCENT_MIN,
+  DEFAULT_BORDER_PERCENT,
+  DEFAULT_RATIO,
+} from "../../shared/constants";
 import type { AspectRatioOption } from "../../shared/types";
 
 interface EditorState {
   image: HTMLImageElement | null;
-  borderWidth: number;
+  borderPercent: number;
   ratio: AspectRatioOption;
+  step: "photo" | "ratio" | "preview";
 }
 
 const createElement = <T extends keyof HTMLElementTagNameMap>(
@@ -36,12 +43,12 @@ const loadImage = (file: File): Promise<HTMLImageElement> =>
 const renderCanvas = (
   canvas: HTMLCanvasElement,
   image: HTMLImageElement,
-  borderWidth: number,
+  borderPercent: number,
   ratio: AspectRatioOption,
 ): void => {
   const layout = calculateLayout({
     source: { width: image.naturalWidth, height: image.naturalHeight },
-    borderWidth,
+    borderPercent,
     ratio,
   });
 
@@ -78,56 +85,70 @@ const buildRatioOptions = (current: AspectRatioOption): HTMLDivElement => {
 export const createEditor = (root: HTMLElement): void => {
   const state: EditorState = {
     image: null,
-    borderWidth: DEFAULT_BORDER_WIDTH,
+    borderPercent: DEFAULT_BORDER_PERCENT,
     ratio: DEFAULT_RATIO,
+    step: "photo",
   };
 
   const wrapper = createElement("div", "editor");
   const title = createElement("h1");
   title.textContent = "Just Frames";
 
-  const controlsCard = createElement("section", "card controls");
-
+  const photoCard = createElement("section", "card step step-photo");
+  const photoTitle = createElement("h2");
+  photoTitle.textContent = "Choose a photo";
   const fileLabel = createElement("label");
-  fileLabel.textContent = "Select photo";
+  fileLabel.textContent = "Pick a photo to frame";
   const fileInput = createElement("input") as HTMLInputElement;
+  fileInput.id = "photo-input";
   fileInput.type = "file";
   fileInput.accept = "image/*";
+  fileLabel.htmlFor = fileInput.id;
+  const photoHelper = createElement("p", "helper");
+  photoHelper.textContent = "Your photo stays on your device.";
+  photoCard.append(photoTitle, fileLabel, fileInput, photoHelper);
 
+  const ratioCard = createElement("section", "card step step-ratio is-hidden");
+  const ratioTitle = createElement("h2");
+  ratioTitle.textContent = "Pick a frame ratio";
+  const ratioOptions = buildRatioOptions(state.ratio);
+  const ratioButton = createElement("button") as HTMLButtonElement;
+  ratioButton.textContent = "Continue";
+  ratioButton.disabled = true;
+  ratioCard.append(ratioTitle, ratioOptions, ratioButton);
+
+  const previewCard = createElement("section", "card preview step step-preview is-hidden");
+  const canvas = createElement("canvas") as HTMLCanvasElement;
+  const overlay = createElement("div", "preview-overlay");
   const borderLabel = createElement("label");
-  borderLabel.textContent = "Border width";
+  borderLabel.textContent = "Border";
   const borderRow = createElement("div", "range-row");
   const borderInput = createElement("input") as HTMLInputElement;
+  borderInput.id = "border-range";
   borderInput.type = "range";
-  borderInput.min = String(BORDER_WIDTH_MIN);
-  borderInput.max = String(BORDER_WIDTH_MAX);
-  borderInput.value = String(state.borderWidth);
-
+  borderInput.min = String(BORDER_PERCENT_MIN);
+  borderInput.max = String(BORDER_PERCENT_MAX);
+  borderInput.value = String(state.borderPercent);
+  borderLabel.htmlFor = borderInput.id;
   const borderValue = createElement("span");
-  borderValue.textContent = `${state.borderWidth}px`;
+  borderValue.textContent = `${state.borderPercent}%`;
   borderRow.append(borderInput, borderValue);
 
-  const ratioLabel = createElement("label");
-  ratioLabel.textContent = "Aspect ratio";
-  const ratioOptions = buildRatioOptions(state.ratio);
-
-  const helper = createElement("p", "helper");
-  helper.textContent = "Photos never leave your device. Borders are added locally in Safari.";
-
-  controlsCard.append(fileLabel, fileInput, borderLabel, borderRow, ratioLabel, ratioOptions, helper);
-
-  const previewCard = createElement("section", "card preview");
-  const canvas = createElement("canvas") as HTMLCanvasElement;
-  previewCard.append(canvas);
-
-  const actionCard = createElement("section", "card actions");
   const doneButton = createElement("button") as HTMLButtonElement;
   doneButton.textContent = "Done";
   doneButton.disabled = true;
-  actionCard.append(doneButton);
+  overlay.append(borderLabel, borderRow, doneButton);
+  previewCard.append(canvas, overlay);
 
-  wrapper.append(title, controlsCard, previewCard, actionCard);
+  wrapper.append(title, photoCard, ratioCard, previewCard);
   root.append(wrapper);
+
+  const setStep = (step: EditorState["step"]): void => {
+    state.step = step;
+    photoCard.classList.toggle("is-hidden", step !== "photo");
+    ratioCard.classList.toggle("is-hidden", step !== "ratio");
+    previewCard.classList.toggle("is-hidden", step !== "preview");
+  };
 
   const updatePreview = (): void => {
     if (!state.image) {
@@ -145,7 +166,7 @@ export const createEditor = (root: HTMLElement): void => {
       return;
     }
 
-    renderCanvas(canvas, state.image, state.borderWidth, state.ratio);
+    renderCanvas(canvas, state.image, state.borderPercent, state.ratio);
     doneButton.disabled = false;
   };
 
@@ -158,14 +179,16 @@ export const createEditor = (root: HTMLElement): void => {
     try {
       state.image = await loadImage(file);
       updatePreview();
+      ratioButton.disabled = false;
+      setStep("ratio");
     } catch (error) {
       console.error(error);
     }
   });
 
   borderInput.addEventListener("input", () => {
-    state.borderWidth = Number(borderInput.value);
-    borderValue.textContent = `${state.borderWidth}px`;
+    state.borderPercent = Number(borderInput.value);
+    borderValue.textContent = `${state.borderPercent}%`;
     updatePreview();
   });
 
@@ -179,23 +202,31 @@ export const createEditor = (root: HTMLElement): void => {
     updatePreview();
   });
 
+  ratioButton.addEventListener("click", () => {
+    if (!state.image) {
+      return;
+    }
+    setStep("preview");
+    updatePreview();
+  });
+
   doneButton.addEventListener("click", async () => {
     if (!state.image) {
       return;
     }
 
     const exportCanvas = document.createElement("canvas");
-    renderCanvas(exportCanvas, state.image, state.borderWidth, state.ratio);
+    renderCanvas(exportCanvas, state.image, state.borderPercent, state.ratio);
 
     const blob = await new Promise<Blob | null>((resolve) =>
-      exportCanvas.toBlob(resolve, "image/png"),
+      exportCanvas.toBlob(resolve, "image/jpeg", 0.92),
     );
 
     if (!blob) {
       return;
     }
 
-    const file = new File([blob], "just-frame.png", { type: "image/png" });
+    const file = new File([blob], "just-frame.jpg", { type: "image/jpeg" });
 
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       await navigator.share({
@@ -208,7 +239,7 @@ export const createEditor = (root: HTMLElement): void => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "just-frame.png";
+    link.download = "just-frame.jpg";
     link.click();
     URL.revokeObjectURL(url);
   });
