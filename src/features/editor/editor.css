@@ -17,9 +17,12 @@ body.is-preview {
 
 #app {
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   padding: 24px 16px 48px;
+  box-sizing: border-box;
 }
 
 #app.is-wizard {
