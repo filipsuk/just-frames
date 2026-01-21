@@ -110,6 +110,9 @@ export const createEditor = (root: HTMLElement): void => {
   const wrapper = createElement("div", "editor");
   const title = createElement("h1");
   title.textContent = "Just Frames";
+  const intro = createElement("p", "intro");
+  intro.textContent =
+    "Add a white frame to your photo. Works offline and your photos never leave your device.";
 
   const photoCard = createElement("section", "card step step-photo");
   const ratioRow = createElement("div", "ratio-row");
@@ -127,8 +130,6 @@ export const createEditor = (root: HTMLElement): void => {
     ratioSelect.append(optionElement);
   });
   ratioRow.append(ratioLabel, ratioSelect);
-  const photoTitle = createElement("h2");
-  photoTitle.textContent = "Choose a photo";
   const fileInput = createElement("input") as HTMLInputElement;
   fileInput.id = "photo-input";
   fileInput.type = "file";
@@ -137,11 +138,10 @@ export const createEditor = (root: HTMLElement): void => {
   const photoAction = createElement("div", "photo-action");
   const photoButton = createElement("button") as HTMLButtonElement;
   photoButton.type = "button";
+  photoButton.className = "button-primary";
   photoButton.textContent = "Select photo";
   photoAction.append(photoButton, fileInput);
-  const photoHelper = createElement("p", "helper");
-  photoHelper.textContent = "Your photo stays on your device.";
-  photoCard.append(ratioRow, photoTitle, photoAction, photoHelper);
+  photoCard.append(ratioRow, photoAction);
 
   const previewCard = createElement("section", "preview step step-preview preview-screen is-hidden");
   const closeButton = createCloseButton();
@@ -163,13 +163,14 @@ export const createEditor = (root: HTMLElement): void => {
   borderRow.append(borderInput, borderValue);
 
   const doneButton = createElement("button") as HTMLButtonElement;
+  doneButton.className = "button-primary";
   doneButton.textContent = "Done";
   doneButton.disabled = true;
   previewStage.append(canvas);
   previewControls.append(borderLabel, borderRow, doneButton);
   previewCard.append(closeButton, previewStage, previewControls);
 
-  wrapper.append(title, photoCard, previewCard);
+  wrapper.append(title, intro, photoCard, previewCard);
   root.append(wrapper);
 
   const setStep = (step: EditorState["step"]): void => {

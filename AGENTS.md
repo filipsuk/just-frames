@@ -14,3 +14,4 @@
 
 ## Screenshots
 - When making changes to the preview screen layout/styles, capture a Playwright screenshot like the most recent preview layout example.
+- Capture screenshots using an iPhone 12 resolution (390x844).
