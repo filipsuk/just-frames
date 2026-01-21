@@ -134,7 +134,9 @@ body.is-preview {
 .preview {
   box-sizing: border-box;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-content: start;
+  gap: 12px;
   background: #4c4c4c;
   height: 100%;
   position: relative;
