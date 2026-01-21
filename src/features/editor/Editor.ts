@@ -146,7 +146,8 @@ export const createEditor = (root: HTMLElement): void => {
   const previewCard = createElement("section", "preview step step-preview preview-screen is-hidden");
   const closeButton = createCloseButton();
   const canvas = createElement("canvas") as HTMLCanvasElement;
-  const overlay = createElement("div", "preview-overlay");
+  const previewStage = createElement("div", "preview-stage");
+  const previewControls = createElement("div", "preview-controls");
   const borderLabel = createElement("label");
   borderLabel.textContent = "Border";
   const borderRow = createElement("div", "range-row");
@@ -164,8 +165,9 @@ export const createEditor = (root: HTMLElement): void => {
   const doneButton = createElement("button") as HTMLButtonElement;
   doneButton.textContent = "Done";
   doneButton.disabled = true;
-  overlay.append(borderLabel, borderRow, doneButton);
-  previewCard.append(closeButton, canvas, overlay);
+  previewStage.append(canvas);
+  previewControls.append(borderLabel, borderRow, doneButton);
+  previewCard.append(closeButton, previewStage, previewControls);
 
   wrapper.append(title, photoCard, previewCard);
   root.append(wrapper);
