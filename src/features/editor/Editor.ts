@@ -115,6 +115,8 @@ export const createEditor = (root: HTMLElement): void => {
     "Add a white frame to your photo. Works offline and your photos never leave your device.";
 
   const photoCard = createElement("section", "card step step-photo");
+  const photoTitle = createElement("h2");
+  photoTitle.textContent = "Choose a photo";
   const ratioRow = createElement("div", "ratio-row");
   const ratioLabel = createElement("label");
   ratioLabel.textContent = "Frame ratio";
@@ -141,7 +143,7 @@ export const createEditor = (root: HTMLElement): void => {
   photoButton.className = "button-primary";
   photoButton.textContent = "Select photo";
   photoAction.append(photoButton, fileInput);
-  photoCard.append(ratioRow, photoAction);
+  photoCard.append(photoTitle, ratioRow, photoAction);
 
   const previewCard = createElement("section", "preview step step-preview preview-screen is-hidden");
   const closeButton = createCloseButton();
