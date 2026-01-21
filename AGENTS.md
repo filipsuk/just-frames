@@ -11,6 +11,7 @@
 
 ## Testing
 - When applicable, run relevant tests and report the exact commands.
+- Always run the full test suite before finishing any task; passing tests are the definition of done.
 
 ## Screenshots
 - When making changes to the preview screen layout/styles, capture a Playwright screenshot like the most recent preview layout example.
