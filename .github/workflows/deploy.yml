@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy
 
 on:
   push:
@@ -12,17 +12,16 @@ on:
         required: false
         default: ""
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   test:
+    name: Test
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     container:
@@ -56,10 +55,9 @@ jobs:
             playwright-report
 
   build:
+    name: Build
     if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.57.0-jammy
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -84,9 +82,13 @@ jobs:
           path: dist
 
   deploy:
+    name: Deploy
     needs: build
     if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
