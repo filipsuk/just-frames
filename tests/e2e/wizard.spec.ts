@@ -55,8 +55,8 @@ test("allows closing the preview to return to the photo step", async ({ page }) 
   const previewScreen = page.locator(".preview-screen");
   const closeButton = page.getByRole("button", { name: "Close preview" });
 
-  await expect(previewScreen).toHaveCSS("background-color", "rgb(76, 76, 76)");
-  await expect(closeButton).toHaveCSS("background-color", "rgba(15, 23, 42, 0.6)");
+  await expect(previewScreen).toHaveCSS("background-color", "rgb(11, 11, 11)");
+  await expect(closeButton).toHaveCSS("background-color", "rgb(15, 15, 15)");
   await expect(closeButton).toBeVisible();
   await page.getByRole("button", { name: "Close preview" }).click();
 
