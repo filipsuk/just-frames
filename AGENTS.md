@@ -11,3 +11,6 @@
 
 ## Testing
 - When applicable, run relevant tests and report the exact commands.
+
+## Screenshots
+- When making changes to the preview screen layout/styles, capture a Playwright screenshot like the most recent preview layout example.
