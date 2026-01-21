@@ -204,6 +204,13 @@ export const createEditor = (root: HTMLElement): void => {
     doneButton.disabled = false;
   };
 
+  const resetAfterExport = (): void => {
+    state.image = null;
+    fileInput.value = "";
+    updatePreview();
+    setStep("photo");
+  };
+
   const schedulePreview = createRafThrottled(() => {
     updatePreview();
   });
@@ -257,10 +264,15 @@ export const createEditor = (root: HTMLElement): void => {
     const file = new File([blob], "just-frame.jpg", { type: "image/jpeg" });
 
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: "Just Frames",
-      });
+      try {
+        await navigator.share({
+          files: [file],
+          title: "Just Frames",
+        });
+        resetAfterExport();
+      } catch (error) {
+        console.error(error);
+      }
       return;
     }
 
@@ -268,8 +280,12 @@ export const createEditor = (root: HTMLElement): void => {
     const link = document.createElement("a");
     link.href = url;
     link.download = "just-frame.jpg";
-    link.click();
-    URL.revokeObjectURL(url);
+    try {
+      link.click();
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+    resetAfterExport();
   });
 
   closeButton.addEventListener("click", () => {
