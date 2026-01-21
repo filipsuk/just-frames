@@ -42,6 +42,9 @@ test("guides the user through the wizard flow", async ({ page }) => {
   ]);
 
   expect(download.suggestedFilename()).toBe("just-frame.jpg");
+  await expect(page.getByRole("heading", { name: "Just Frames" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Choose a photo" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Done" })).not.toBeVisible();
 });
 
 test("allows closing the preview to return to the photo step", async ({ page }) => {
