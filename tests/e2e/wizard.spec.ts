@@ -60,6 +60,23 @@ test("allows closing the preview to return to the photo step", async ({ page }) 
   await expect(page.getByRole("button", { name: "Done" })).not.toBeVisible();
 });
 
+test("remembers the selected ratio and border percent after refresh", async ({ page }) => {
+  await page.goto("/");
+  await loadSampleImage(page);
+
+  await page.getByLabel("Border").fill("14");
+  await page.getByLabel("Frame ratio").selectOption("square");
+
+  await expect(page.getByText("14%")).toBeVisible();
+
+  await page.reload();
+  await loadSampleImage(page);
+
+  await expect(page.getByLabel("Border")).toHaveValue("14");
+  await expect(page.getByText("14%")).toBeVisible();
+  await expect(page.getByLabel("Frame ratio")).toHaveValue("square");
+});
+
 test("reselecting the same photo after closing the preview opens it again", async ({ page }) => {
   await page.goto("/");
 
