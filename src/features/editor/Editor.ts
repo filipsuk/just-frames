@@ -8,62 +8,18 @@ import {
   DEFAULT_RATIO,
   MAX_CANVAS_DIMENSION,
 } from "../../shared/constants";
+import { applyExifToBlob, loadImageWithExif } from "../../shared/imageIO";
 import { createRafThrottled } from "../../shared/rafThrottle";
 import type { AspectRatioOption } from "../../shared/types";
+import { createCloseButton, createElement } from "./ui";
 
 interface EditorState {
   image: HTMLImageElement | null;
+  exifSegment: Uint8Array | null;
   borderPercent: number;
   ratio: AspectRatioOption;
   step: "photo" | "preview";
 }
-
-const createElement = <T extends keyof HTMLElementTagNameMap>(
-  tag: T,
-  className?: string,
-): HTMLElementTagNameMap[T] => {
-  const element = document.createElement(tag);
-  if (className) {
-    element.className = className;
-  }
-  return element;
-};
-
-const createCloseButton = (): HTMLButtonElement => {
-  const button = createElement("button", "preview-close") as HTMLButtonElement;
-  button.type = "button";
-  button.setAttribute("aria-label", "Close preview");
-
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("width", "16");
-  svg.setAttribute("height", "16");
-  svg.setAttribute("aria-hidden", "true");
-
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute("d", "M6 6l12 12M18 6l-12 12");
-  path.setAttribute("fill", "none");
-  path.setAttribute("stroke", "currentColor");
-  path.setAttribute("stroke-width", "2");
-  path.setAttribute("stroke-linecap", "round");
-
-  svg.append(path);
-  button.append(svg);
-  return button;
-};
-
-const loadImage = (file: File): Promise<HTMLImageElement> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error("Unable to load image"));
-      img.src = reader.result as string;
-    };
-    reader.onerror = () => reject(new Error("Unable to read file"));
-    reader.readAsDataURL(file);
-  });
 
 const renderCanvas = (
   canvas: HTMLCanvasElement,
@@ -110,6 +66,7 @@ const isMobileDevice = (): boolean => {
 export const createEditor = (root: HTMLElement): void => {
   const state: EditorState = {
     image: null,
+    exifSegment: null,
     borderPercent: DEFAULT_BORDER_PERCENT,
     ratio: DEFAULT_RATIO,
     step: "photo",
@@ -225,6 +182,7 @@ export const createEditor = (root: HTMLElement): void => {
 
   const resetAfterExport = (): void => {
     state.image = null;
+    state.exifSegment = null;
     fileInput.value = "";
     updatePreview();
     setStep("photo");
@@ -241,7 +199,9 @@ export const createEditor = (root: HTMLElement): void => {
     }
 
     try {
-      state.image = await loadImage(file);
+      const result = await loadImageWithExif(file);
+      state.image = result.image;
+      state.exifSegment = result.exifSegment;
       updatePreview();
       setStep("preview");
     } catch (error) {
@@ -280,7 +240,8 @@ export const createEditor = (root: HTMLElement): void => {
       return;
     }
 
-    const file = new File([blob], "just-frame.jpg", { type: "image/jpeg" });
+    const exportBlob = await applyExifToBlob(blob, state.exifSegment);
+    const file = new File([exportBlob], "just-frame.jpg", { type: "image/jpeg" });
 
     if (isMobileDevice() && navigator.share && navigator.canShare?.({ files: [file] })) {
       try {
@@ -295,7 +256,7 @@ export const createEditor = (root: HTMLElement): void => {
       return;
     }
 
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(exportBlob);
     const link = document.createElement("a");
     link.href = url;
     link.download = "just-frame.jpg";
