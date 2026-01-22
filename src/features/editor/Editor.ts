@@ -122,34 +122,28 @@ export const createEditor = (root: HTMLElement): void => {
   intro.textContent =
     "Add a white frame to your photo. Works offline and your photos never leave your device.";
 
-  const photoCard = createElement("section", "card step step-photo");
-  const ratioRow = createElement("div", "ratio-row");
-  const ratioLabel = createElement("label");
-  ratioLabel.textContent = "Frame ratio";
-  const ratioSelect = createElement("select") as HTMLSelectElement;
-  ratioSelect.id = "ratio-select";
-  ratioSelect.className = "ratio-select";
-  ratioLabel.htmlFor = ratioSelect.id;
-  (Object.keys(ASPECT_RATIO_LABELS) as AspectRatioOption[]).forEach((option) => {
-    const optionElement = createElement("option") as HTMLOptionElement;
-    optionElement.value = option;
-    optionElement.textContent = ASPECT_RATIO_LABELS[option];
-    optionElement.selected = option === state.ratio;
-    ratioSelect.append(optionElement);
-  });
-  ratioRow.append(ratioLabel, ratioSelect);
+  const photoCard = createElement("section", "step step-photo");
   const fileInput = createElement("input") as HTMLInputElement;
   fileInput.id = "photo-input";
   fileInput.type = "file";
   fileInput.accept = "image/*";
   fileInput.className = "photo-input";
-  const photoAction = createElement("div", "photo-action");
   const photoButton = createElement("button") as HTMLButtonElement;
   photoButton.type = "button";
   photoButton.className = "button-primary";
   photoButton.textContent = "Select photo";
-  photoAction.append(photoButton, fileInput);
-  photoCard.append(ratioRow, photoAction);
+  const valueList = createElement("ul", "value-list");
+  [
+    "Privacy-first (no uploads)",
+    "Works offline + add to Home Screen",
+    "No watermarks",
+    "Free & open-source",
+  ].forEach((value) => {
+    const item = createElement("li");
+    item.textContent = value;
+    valueList.append(item);
+  });
+  photoCard.append(photoButton, fileInput, valueList);
 
   const previewCard = createElement("section", "preview step step-preview preview-screen is-hidden");
   const closeButton = createCloseButton();
@@ -170,12 +164,28 @@ export const createEditor = (root: HTMLElement): void => {
   borderValue.textContent = `${state.borderPercent}%`;
   borderRow.append(borderInput, borderValue);
 
+  const ratioRow = createElement("div", "ratio-row");
+  const ratioLabel = createElement("label");
+  ratioLabel.textContent = "Frame ratio";
+  const ratioSelect = createElement("select") as HTMLSelectElement;
+  ratioSelect.id = "ratio-select";
+  ratioSelect.className = "ratio-select";
+  ratioLabel.htmlFor = ratioSelect.id;
+  (Object.keys(ASPECT_RATIO_LABELS) as AspectRatioOption[]).forEach((option) => {
+    const optionElement = createElement("option") as HTMLOptionElement;
+    optionElement.value = option;
+    optionElement.textContent = ASPECT_RATIO_LABELS[option];
+    optionElement.selected = option === state.ratio;
+    ratioSelect.append(optionElement);
+  });
+  ratioRow.append(ratioLabel, ratioSelect);
+
   const doneButton = createElement("button") as HTMLButtonElement;
   doneButton.className = "button-primary";
   doneButton.textContent = "Done";
   doneButton.disabled = true;
   previewStage.append(canvas);
-  previewControls.append(borderLabel, borderRow, doneButton);
+  previewControls.append(borderLabel, borderRow, ratioRow, doneButton);
   previewCard.append(closeButton, previewStage, previewControls);
 
   wrapper.append(title, intro, photoCard, previewCard);

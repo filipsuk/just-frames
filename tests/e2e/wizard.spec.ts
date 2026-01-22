@@ -16,11 +16,11 @@ const loadSampleImage = async (page: Page) => {
 test("guides the user through the wizard flow", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByLabel("Frame ratio")).toBeVisible();
   await expect(page.getByRole("button", { name: "Select photo" })).toBeVisible();
 
   await loadSampleImage(page);
 
+  await expect(page.getByLabel("Frame ratio")).toBeVisible();
   await expect(page.getByRole("button", { name: "Done" })).toBeVisible();
   await expect(page.getByLabel("Border")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Just Frames" })).not.toBeVisible();
