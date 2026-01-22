@@ -10,6 +10,10 @@ import {
 } from "../../shared/constants";
 import { applyExifToBlob, loadImageWithExif } from "../../shared/imageIO";
 import { createRafThrottled } from "../../shared/rafThrottle";
+import {
+  loadRememberedValues,
+  saveRememberedValues,
+} from "../../shared/rememberedValues";
 import type { AspectRatioOption } from "../../shared/types";
 import { createCloseButton, createElement } from "./ui";
 
@@ -64,11 +68,12 @@ const isMobileDevice = (): boolean => {
 };
 
 export const createEditor = (root: HTMLElement): void => {
+  const rememberedValues = loadRememberedValues();
   const state: EditorState = {
     image: null,
     exifSegment: null,
-    borderPercent: DEFAULT_BORDER_PERCENT,
-    ratio: DEFAULT_RATIO,
+    borderPercent: rememberedValues?.borderPercent ?? DEFAULT_BORDER_PERCENT,
+    ratio: rememberedValues?.ratio ?? DEFAULT_RATIO,
     step: "photo",
   };
 
@@ -93,6 +98,8 @@ export const createEditor = (root: HTMLElement): void => {
   [
     "Privacy-first (no uploads)",
     "Works offline + add to Home Screen",
+    "High quality export",
+    "Preserves EXIF metadata",
     "No watermarks",
     "Free & open-source",
   ].forEach((value) => {
@@ -216,11 +223,19 @@ export const createEditor = (root: HTMLElement): void => {
   borderInput.addEventListener("input", () => {
     state.borderPercent = Number(borderInput.value);
     borderValue.textContent = `${state.borderPercent}%`;
+    saveRememberedValues({
+      borderPercent: state.borderPercent,
+      ratio: state.ratio,
+    });
     schedulePreview();
   });
 
   ratioSelect.addEventListener("change", () => {
     state.ratio = ratioSelect.value as AspectRatioOption;
+    saveRememberedValues({
+      borderPercent: state.borderPercent,
+      ratio: state.ratio,
+    });
     updatePreview();
   });
 
