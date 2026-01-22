@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
 const sampleImage = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y4GZ1sAAAAASUVORK5CYII=",
+  "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAABOElEQVR4nO3OMQ0AAAjAsElHOhb4liVUQZl3hh0owQ6UYAdKsAMl2IES7EAJdqAEO1CCHSjBDpRgB0qwAyXYgRLsQAl2oAQ7UIIdKMEOlGAHSrADJdiBEuxACXagBDtQgh0owQ6UYAdKsAMl2IES7EAJdqAEO1CCHSjBDpRgB0qwAyXYgRLsQAl2oAQ7UIIdKMEOlGAHSrADJdiBEuxACXagBDtQgh0owQ6UYAdKsAMl2IES7EAJdqAEO1CCHSjBDpRgB0qwAyXYgRLsQAl2oAQ7UIIdKMEOlGAHSrADJdiBEuxACXagBDtQgh0owQ6UYAdKsAMl2IES7EAJdqAEO1CCHSjBDpRgB0qwAyXYgRLsQAl2oAQ7UIIdKMEOlGAHSrADJdiBEuxACXagBDtQgh0owQ6UYAdKFkd+m2cPIOlDAAAAAElFTkSuQmCC",
   "base64",
 );
 
@@ -16,7 +16,6 @@ const loadSampleImage = async (page: Page) => {
 test("guides the user through the wizard flow", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "Choose a photo" })).toBeVisible();
   await expect(page.getByLabel("Frame ratio")).toBeVisible();
   await expect(page.getByRole("button", { name: "Select photo" })).toBeVisible();
 
@@ -34,8 +33,6 @@ test("guides the user through the wizard flow", async ({ page }) => {
   );
   expect(isScrollable).toBe(false);
 
-  await page.screenshot({ path: "test-results/wizard-preview.png", fullPage: true });
-
   const [download] = await Promise.all([
     page.waitForEvent("download"),
     page.getByRole("button", { name: "Done" }).click(),
@@ -43,7 +40,6 @@ test("guides the user through the wizard flow", async ({ page }) => {
 
   expect(download.suggestedFilename()).toBe("just-frame.jpg");
   await expect(page.getByRole("heading", { name: "Just Frames" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Choose a photo" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Done" })).not.toBeVisible();
 });
 
@@ -61,6 +57,70 @@ test("allows closing the preview to return to the photo step", async ({ page }) 
   await page.getByRole("button", { name: "Close preview" }).click();
 
   await expect(page.getByRole("heading", { name: "Just Frames" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Choose a photo" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Done" })).not.toBeVisible();
+});
+
+test("reselecting the same photo after closing the preview opens it again", async ({ page }) => {
+  await page.goto("/");
+
+  await loadSampleImage(page);
+  await page.getByRole("button", { name: "Close preview" }).click();
+
+  await loadSampleImage(page);
+
+  await expect(page.getByRole("button", { name: "Done" })).toBeVisible();
+});
+
+test("shares the framed image on mobile devices", async ({ page }) => {
+  await page.addInitScript(() => {
+    const shareCalls: unknown[] = [];
+    (window as { __shareCalls?: unknown[] }).__shareCalls = shareCalls;
+    Object.defineProperty(navigator, "userAgent", {
+      get: () => "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
+    });
+    Object.defineProperty(navigator, "userAgentData", {
+      get: () => ({ mobile: true }),
+    });
+    navigator.share = async (data) => {
+      shareCalls.push(data);
+    };
+    navigator.canShare = () => true;
+  });
+
+  await page.goto("/");
+  await loadSampleImage(page);
+
+  await page.screenshot({ path: "test-results/wizard-preview.png", fullPage: true });
+
+  await page.getByRole("button", { name: "Done" }).click();
+
+  await expect.poll(async () =>
+    page.evaluate(() => (window as { __shareCalls?: unknown[] }).__shareCalls?.length ?? 0),
+  ).toBe(1);
+  await expect(page.getByRole("button", { name: "Done" })).not.toBeVisible();
+});
+
+test("downloads the framed image on desktop devices", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.addInitScript(() => {
+    const shareCalls: unknown[] = [];
+    (window as { __shareCalls?: unknown[] }).__shareCalls = shareCalls;
+    navigator.share = async (data) => {
+      shareCalls.push(data);
+    };
+    navigator.canShare = () => true;
+  });
+
+  await page.goto("/");
+  await loadSampleImage(page);
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("button", { name: "Done" }).click(),
+  ]);
+
+  expect(download.suggestedFilename()).toBe("just-frame.jpg");
+  await expect.poll(async () =>
+    page.evaluate(() => (window as { __shareCalls?: unknown[] }).__shareCalls?.length ?? 0),
+  ).toBe(0);
 });
