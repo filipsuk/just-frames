@@ -99,6 +99,14 @@ const renderCanvas = (
   );
 };
 
+const isMobileDevice = (): boolean => {
+  if (navigator.userAgentData?.mobile !== undefined) {
+    return navigator.userAgentData.mobile;
+  }
+
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+};
+
 export const createEditor = (root: HTMLElement): void => {
   const state: EditorState = {
     image: null,
@@ -115,8 +123,6 @@ export const createEditor = (root: HTMLElement): void => {
     "Add a white frame to your photo. Works offline and your photos never leave your device.";
 
   const photoCard = createElement("section", "card step step-photo");
-  const photoTitle = createElement("h2");
-  photoTitle.textContent = "Choose a photo";
   const ratioRow = createElement("div", "ratio-row");
   const ratioLabel = createElement("label");
   ratioLabel.textContent = "Frame ratio";
@@ -143,7 +149,7 @@ export const createEditor = (root: HTMLElement): void => {
   photoButton.className = "button-primary";
   photoButton.textContent = "Select photo";
   photoAction.append(photoButton, fileInput);
-  photoCard.append(photoTitle, ratioRow, photoAction);
+  photoCard.append(ratioRow, photoAction);
 
   const previewCard = createElement("section", "preview step step-preview preview-screen is-hidden");
   const closeButton = createCloseButton();
@@ -266,7 +272,7 @@ export const createEditor = (root: HTMLElement): void => {
 
     const file = new File([blob], "just-frame.jpg", { type: "image/jpeg" });
 
-    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+    if (isMobileDevice() && navigator.share && navigator.canShare?.({ files: [file] })) {
       try {
         await navigator.share({
           files: [file],
@@ -292,6 +298,9 @@ export const createEditor = (root: HTMLElement): void => {
   });
 
   closeButton.addEventListener("click", () => {
+    state.image = null;
+    fileInput.value = "";
+    updatePreview();
     setStep("photo");
   });
 
