@@ -114,13 +114,29 @@ body.is-preview {
   color: inherit;
 }
 
-.photo-action {
-  display: flex;
-  justify-content: center;
-}
-
 .photo-input {
   display: none;
+}
+
+.value-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  color: #bdbdbd;
+  font-size: 13px;
+}
+
+.value-list li {
+  display: flex;
+  gap: 8px;
+}
+
+.value-list li::before {
+  content: "✓";
+  color: var(--accent-color);
+  font-weight: 700;
 }
 
 .range-row {
